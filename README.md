@@ -64,13 +64,15 @@ How keys are protected in detail: [docs/api-key-security.md](docs/api-key-securi
 
 ## Install
 
-### Option A: Installer (easiest)
+### Option A: Download the installer (easiest)
 
-1. Build it once (see *Run from source* below), then run `npm run dist`.
-2. Open `dist/Pebble Setup 1.0.0.exe` and follow the steps.
+1. Go to **[Releases](https://github.com/sanjith3057/pebble/releases/latest)** and download **`Pebble-Setup-1.0.0.exe`**.
+2. Open it and follow the steps.
 3. Windows may show **"Windows protected your PC"** because the app isn't code-signed. Click **More info → Run anyway**.
 
 The installer is about 100 MB, almost all of it the Electron runtime. Pebble itself is about 2 MB.
+
+To build the installer yourself instead: follow *Run from source*, then run `npm run dist`. It appears in `dist/`.
 
 ### Option B: Run from source
 
@@ -152,8 +154,6 @@ scripts/             Pose extraction and asset optimizer
 docs/                Security guide and screenshots
 design/              Source sticker sheets (not shipped in the app)
 ```
-
-The full architecture is in [Clippy-2.0-System-Design.md](Clippy-2.0-System-Design.md).
 
 ### Security at a glance
 - Every window runs sandboxed, with context isolation and no Node access in pages.

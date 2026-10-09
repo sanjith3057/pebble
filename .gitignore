@@ -5,3 +5,8 @@ coverage/
 out/
 dist/
 design/source-sheets/*DUPLICATE*
+
+# Local planning notes (kept on disk, not published)
+.ralphy/
+.agent/
+Clippy-2.0-System-Design.md
