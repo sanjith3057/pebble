@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Strict Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+    <title>Clippy 2.0</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .character-container {
+            width: 200px;
+            height: 200px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: bold;
+            color: #333;
+            /* Make this specific div draggable, not the whole window */
+            -webkit-app-region: drag;
+            position: relative;
+        }
+
+        /* Elements inside a draggable area shouldn't be draggable themselves to allow clicking */
+        .no-drag {
+            -webkit-app-region: no-drag;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="character-container" id="clippy-ui">
+        <div class="no-drag" id="clippy-text">Loading...</div>
+    </div>
+
+    <!-- External script to comply with CSP -->
+    <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "clippy-2",
+  "version": "1.0.0",
+  "description": "Clippy 2.0 AI Companion",
+  "main": "apps/desktop/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "jest": "^30.5.2"
+  }
+}
