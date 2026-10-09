@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- No network access from this page: API calls happen in the main process only -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self';">
+    <title>Pebble Settings</title>
+    <style>
+        :root {
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --text: #1d2130;
+            --muted: #6b7185;
+            --line: #e4e7ef;
+            --accent: #4f7cff;
+            --accent-soft: #e8eeff;
+            --danger: #e5484d;
+            --ok: #2f9e5b;
+            --radius: 12px;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #16181f;
+                --card: #1f222b;
+                --text: #e9ebf2;
+                --muted: #9aa0b4;
+                --line: #2e323e;
+                --accent: #7a9bff;
+                --accent-soft: #263156;
+            }
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; height: 100%; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font: 14px/1.45 'Segoe UI', system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px 8px;
+        }
+        header h1 { font-size: 17px; margin: 0; }
+        nav {
+            display: flex;
+            gap: 4px;
+            padding: 0 14px;
+            border-bottom: 1px solid var(--line);
+        }
+        nav button {
+            border: 0;
+            background: none;
+            color: var(--muted);
+            font: inherit;
+            font-weight: 600;
+            padding: 9px 8px;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+        }
+        nav button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+        main { flex: 1; overflow-y: auto; padding: 14px 18px 24px; }
+        section[hidden] { display: none; }
+        h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 18px 0 8px; }
+        h2:first-child { margin-top: 2px; }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            margin-bottom: 10px;
+        }
+        .row { display: flex; align-items: center; gap: 10px; }
+        .row + .row { margin-top: 10px; }
+        .grow { flex: 1; min-width: 0; }
+        .muted { color: var(--muted); font-size: 12.5px; }
+        .title { font-weight: 600; }
+        button.btn, input, select, textarea {
+            font: inherit;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: var(--card);
+            color: var(--text);
+            padding: 7px 10px;
+        }
+        button.btn { cursor: pointer; font-weight: 600; }
+        button.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+        button.btn.danger { color: var(--danger); }
+        button.btn.small { padding: 4px 9px; font-size: 12.5px; }
+        button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 1px;
+        }
+        input[type="number"] { width: 70px; }
+        textarea { width: 100%; resize: vertical; min-height: 60px; }
+
+        /* toggle switch */
+        .switch { position: relative; width: 40px; height: 22px; flex: none; }
+        .switch input { opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; position: absolute; z-index: 1; }
+        .switch span { position: absolute; inset: 0; background: var(--line); border-radius: 999px; transition: background .2s; }
+        .switch span::after {
+            content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px;
+            background: #fff; border-radius: 50%; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+        }
+        .switch input:checked + span { background: var(--accent); }
+        .switch input:checked + span::after { transform: translateX(18px); }
+        .switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        /* character picker */
+        .characters { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .character {
+            background: var(--card);
+            border: 2px solid var(--line);
+            border-radius: var(--radius);
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            font: inherit;
+            color: var(--text);
+        }
+        .character img { width: 100%; height: 130px; object-fit: contain; }
+        .character[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); }
+
+        .segmented { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+        .segmented button { border: 0; background: var(--card); color: var(--text); font: inherit; padding: 6px 12px; cursor: pointer; }
+        .segmented button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+        .list-item { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px solid var(--line); }
+        .list-item:first-child { border-top: 0; }
+        .pill { font-size: 11.5px; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+        .pill.off { background: var(--line); color: var(--muted); }
+        .status { font-size: 12.5px; min-height: 18px; margin-top: 6px; }
+        .status.ok { color: var(--ok); }
+        .status.err { color: var(--danger); }
+        .notice { border-left: 3px solid var(--accent); padding: 8px 12px; background: var(--accent-soft); border-radius: 6px; font-size: 12.5px; }
+        .notice.warn { border-color: var(--danger); }
+        a.link { color: var(--accent); cursor: pointer; text-decoration: underline; background: none; border: 0; font: inherit; padding: 0; }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="assets/tray-icon.png" width="22" height="22" alt="">
+        <h1>Pebble Settings</h1>
+    </header>
+
+    <nav role="tablist">
+        <button role="tab" data-tab="character" aria-selected="true">Character</button>
+        <button role="tab" data-tab="features">Features</button>
+        <button role="tab" data-tab="agents">Agents</button>
+        <button role="tab" data-tab="memory">Memory</button>
+        <button role="tab" data-tab="keys">AI Keys</button>
+        <button role="tab" data-tab="privacy">Privacy</button>
+    </nav>
+
+    <main>
+        <!-- Character -->
+        <section data-panel="character">
+            <h2>Choose your companion</h2>
+            <div class="characters" id="characters" role="radiogroup" aria-label="Character"></div>
+            <div class="row" style="margin-top:12px">
+                <button class="btn" id="preview">▶ Preview animations</button>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section data-panel="features" hidden>
+            <h2>Behaviour</h2>
+            <div class="card">
+                <div class="row">
+                    <div class="grow"><div class="title">Quiet mode</div><div class="muted">Pebble sleeps and only your own reminders can wake it.</div></div>
+                    <label class="switch"><input type="checkbox" id="quiet" aria-label="Quiet mode"><span></span></label>
+                </div>
+                <div class="row">
+                    <div class="grow"><div class="title">Idle fidgets</div><div class="muted">Drinks water, stretches and plays while idle.</div></div>
+                    <label class="switch"><input type="checkbox" id="fidgets" aria-label="Idle fidgets"><span></span></label>
+                </div>
+            </div>
+            <h2>Animation</h2>
+            <div class="card">
+                <div class="row">
+                    <div class="grow"><div class="title">Animation level</div><div class="muted">Reduced keeps only gentle breathing. Off is completely still.</div></div>
+                </div>
+                <div class="row">
+                    <div class="segmented" id="anim-level" role="group" aria-label="Animation level">
+                        <button data-level="full">Full</button>
+                        <button data-level="reduced">Reduced</button>
+                        <button data-level="off">Off</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Agents -->
+        <section data-panel="agents" hidden>
+            <h2>Reminder agents</h2>
+            <div class="card">
+                <div class="row">
+                    <div class="grow"><div class="title">Enable reminder agents</div><div class="muted">At most 3 reminders an hour, never while quiet mode is on.</div></div>
+                    <label class="switch"><input type="checkbox" id="agents-enabled" aria-label="Enable reminder agents"><span></span></label>
+                </div>
+            </div>
+            <div id="agents"></div>
+
+            <h2>Your reminders</h2>
+            <div class="card">
+                <div class="row">
+                    <input class="grow" id="reminder-text" maxlength="140" placeholder="e.g. Team meeting">
+                </div>
+                <div class="row">
+                    <input type="datetime-local" class="grow" id="reminder-at" aria-label="Reminder time">
+                    <button class="btn primary" id="reminder-add">Add</button>
+                </div>
+                <div class="status" id="reminder-status"></div>
+                <div id="reminders"></div>
+            </div>
+        </section>
+
+        <!-- Memory -->
+        <section data-panel="memory" hidden>
+            <div class="notice">Memories are stored <b>encrypted on this PC only</b>. Pebble only remembers what you add here, and passwords or keys are removed automatically.</div>
+            <h2>Remember something</h2>
+            <div class="card">
+                <textarea id="memory-text" maxlength="2000" placeholder="e.g. My project uses pnpm, not npm"></textarea>
+                <div class="row">
+                    <div class="grow status" id="memory-status"></div>
+                    <button class="btn primary" id="memory-add">Remember</button>
+                </div>
+            </div>
+            <h2>Search memories</h2>
+            <div class="card">
+                <input id="memory-query" style="width:100%" placeholder="Search by words…">
+                <div id="memory-results"></div>
+            </div>
+            <h2>All memories <span class="muted" id="memory-count"></span></h2>
+            <div class="card">
+                <div id="memories"></div>
+                <div class="row" style="margin-top:8px"><button class="btn danger small" id="memory-clear">Delete all memories</button></div>
+            </div>
+        </section>
+
+        <!-- AI keys -->
+        <section data-panel="keys" hidden>
+            <div class="notice" id="key-notice">Your keys are encrypted with Windows' built-in protection, stay on this PC, and are never shown again after saving. Only the last 4 characters are displayed.</div>
+            <h2>Active provider</h2>
+            <div class="card">
+                <select id="provider" style="width:100%" aria-label="Active AI provider"></select>
+            </div>
+            <h2>API keys</h2>
+            <div id="providers"></div>
+        </section>
+        <!-- Privacy -->
+        <section data-panel="privacy" hidden>
+            <div class="notice"><b>Pebble never collects usage data.</b> No analytics, no tracking, no training on your data. Everything below stays on this PC.</div>
+
+            <h2>Activity awareness</h2>
+            <div class="card">
+                <div class="row">
+                    <div class="grow">
+                        <div class="title">React to what I'm doing <span class="pill off" id="activity-pill">Off</span></div>
+                        <div class="muted">Notices searching, music, unsaved work, closed apps and when you step away. Reads only window names, on this PC, and keeps nothing.</div>
+                    </div>
+                    <button class="btn primary small" id="activity-toggle">Turn on…</button>
+                </div>
+                <div id="activity-signals"></div>
+                <div class="muted" id="activity-unsupported" hidden>Activity awareness is only available on Windows.</div>
+            </div>
+
+            <h2>Network</h2>
+            <div class="card">
+                <div class="row">
+                    <div class="grow"><div class="title">Offline mode</div><div class="muted">Blocks every internet request. AI features stop; the character, reminders and memory keep working.</div></div>
+                    <label class="switch"><input type="checkbox" id="offline" aria-label="Offline mode"><span></span></label>
+                </div>
+            </div>
+
+            <h2>AI providers and training</h2>
+            <div class="card">
+                <div class="muted" style="margin-bottom:6px">Pebble only sends data to an AI when you use an AI feature, and only to the provider you picked. What the provider may do with it (at the time of writing; check their current terms):</div>
+                <div class="list-item"><div class="grow"><div class="title">Anthropic API</div><div class="muted">Not used for training by default.</div></div></div>
+                <div class="list-item"><div class="grow"><div class="title">OpenAI API</div><div class="muted">Not used for training by default.</div></div></div>
+                <div class="list-item"><div class="grow"><div class="title">Google Gemini API</div><div class="muted"><b>Free tier: may be used to improve Google's products, including human review.</b> Paid tier: not used for training.</div></div></div>
+            </div>
+
+            <h2>Your data</h2>
+            <div class="card">
+                <div class="row">
+                    <div class="grow"><div class="title">Delete all my data</div><div class="muted">Removes API keys, memories, reminders and settings from this PC.</div></div>
+                    <button class="btn danger small" id="delete-all">Delete…</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="settings-ui.js"></script>
+</body>
+</html>

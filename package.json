@@ -1,13 +1,66 @@
 {
-  "name": "clippy-2",
+  "name": "pebble",
+  "productName": "Pebble",
   "version": "1.0.0",
-  "description": "Clippy 2.0 AI Companion",
+  "description": "Pebble, a friendly desktop companion",
+  "author": "Sanjith (https://github.com/sanjith3057)",
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sanjith3057/pebble.git"
+  },
   "main": "apps/desktop/main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "optimize": "python scripts/optimize-assets.py",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "com.pebble.desktop",
+    "directories": {
+      "output": "dist"
+    },
+    "asar": true,
+    "compression": "maximum",
+    "electronLanguages": [
+      "en-US"
+    ],
+    "files": [
+      "package.json",
+      "apps/desktop/**/*",
+      "core/**/*",
+      "security/**/*",
+      "tools/**/*",
+      "adapters/**/*",
+      "!**/*.{md,map,ts,mts,cts}",
+      "!**/node_modules/**/{test,tests,__tests__,docs,doc,example,examples,src}/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    }
   },
   "devDependencies": {
-    "electron": "^30.0.0",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
     "jest": "^30.5.2"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.132.1",
+    "koffi": "^3.3.2"
   }
 }

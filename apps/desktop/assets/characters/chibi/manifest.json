@@ -1,0 +1,95 @@
+{
+  "id": "chibi",
+  "name": "Chibi Assistant",
+  "poses": {
+    "wave": "poses/wave.webp",
+    "thumbs_up": "poses/thumbs_up.webp",
+    "thinking": "poses/thinking.webp",
+    "working": "poses/working.webp",
+    "drinking": "poses/drinking.webp",
+    "yawn": "poses/yawn.webp",
+    "sleep": "poses/sleep.webp",
+    "sign_water": "poses/sign_water.webp",
+    "sign_break": "poses/sign_break.webp",
+    "sign_work": "poses/sign_work.webp",
+    "sign_meeting": "poses/sign_meeting.webp",
+    "idea": "poses/idea.webp",
+    "talking": "poses/talking.webp",
+    "love": "poses/love.webp",
+    "peek": "poses/peek.webp",
+    "relaxed_laptop": "poses/relaxed_laptop.webp",
+    "focused": "poses/focused.webp",
+    "celebrate": "poses/celebrate.webp",
+    "explain": "poses/explain.webp",
+    "search": "poses/search.webp",
+    "run": "poses/run.webp"
+  },
+  "states": {
+    "idle": [
+      "working"
+    ],
+    "greet": [
+      "wave"
+    ],
+    "curious": [
+      "idea",
+      "peek"
+    ],
+    "thinking": [
+      "thinking",
+      "search"
+    ],
+    "talking": [
+      "explain",
+      "talking"
+    ],
+    "success": [
+      "celebrate",
+      "thumbs_up"
+    ],
+    "warning": [
+      "sign_meeting",
+      "sign_break"
+    ],
+    "error": [
+      "talking"
+    ],
+    "sleep": [
+      "sleep"
+    ],
+    "enter": [
+      "run"
+    ],
+    "search": [
+      "search"
+    ],
+    "music": [
+      "love",
+      "relaxed_laptop"
+    ]
+  },
+  "fidgets": [
+    "drinking",
+    "relaxed_laptop",
+    "focused",
+    "yawn",
+    "love"
+  ],
+  "reminders": {
+    "water": [
+      "sign_water"
+    ],
+    "break": [
+      "sign_break"
+    ],
+    "work": [
+      "sign_work"
+    ],
+    "meeting": [
+      "sign_meeting"
+    ],
+    "save": [
+      "explain"
+    ]
+  }
+}

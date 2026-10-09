@@ -1,0 +1,82 @@
+{
+  "id": "cat",
+  "name": "Deal-With-It Cat",
+  "poses": {
+    "idle": "poses/idle.webp",
+    "wink": "poses/wink.webp",
+    "walk": "poses/walk.webp",
+    "sleep": "poses/sleep.webp",
+    "drinking": "poses/drinking.webp",
+    "stretch": "poses/stretch.webp",
+    "working": "poses/working.webp",
+    "alarm": "poses/alarm.webp",
+    "wave": "poses/wave.webp",
+    "celebrate": "poses/celebrate.webp",
+    "thinking": "poses/thinking.webp",
+    "love": "poses/love.webp"
+  },
+  "states": {
+    "idle": [
+      "idle"
+    ],
+    "greet": [
+      "wave"
+    ],
+    "curious": [
+      "wink"
+    ],
+    "thinking": [
+      "thinking"
+    ],
+    "talking": [
+      "wink",
+      "idle"
+    ],
+    "success": [
+      "celebrate"
+    ],
+    "warning": [
+      "alarm"
+    ],
+    "error": [
+      "thinking"
+    ],
+    "sleep": [
+      "sleep"
+    ],
+    "enter": [
+      "walk"
+    ],
+    "search": [
+      "thinking"
+    ],
+    "music": [
+      "love",
+      "wink"
+    ]
+  },
+  "fidgets": [
+    "walk",
+    "stretch",
+    "drinking",
+    "working",
+    "love"
+  ],
+  "reminders": {
+    "water": [
+      "drinking"
+    ],
+    "break": [
+      "stretch"
+    ],
+    "work": [
+      "working"
+    ],
+    "meeting": [
+      "alarm"
+    ],
+    "save": [
+      "alarm"
+    ]
+  }
+}

@@ -1568,3 +1568,40 @@ Animations must map smoothly between the AI's internal state and the UI:
 - **Intervening (Proactive):** A distinct "curious" or "attention-grabbing" animation when the `Intervention Engine` decides to offer help.
 
 The `Character Renderer` subscribes to the `Event Bus` (e.g., `AIResponseStarted`, `AIResponseCompleted`) to orchestrate these animation transitions without blocking the main desktop thread.
+
+---
+
+# 47. Legal & Compliance Architecture
+
+Based on the 6 major legal risks for small apps, Clippy 2.0 incorporates the following compliance rules directly into the architecture:
+
+## 47.1 Children's Data (COPPA - US)
+- **Design Rule:** The app collects highly sensitive desktop context (clipboard, active windows). It is strictly **not for children under 13**.
+- **Implementation:** The first-run onboarding flow must include a hard age-gate (e.g., "Are you 13 or older?"). If the user is under 13, the app must not initialize AI context collection or connect to cloud providers.
+- **Action Required:** State explicitly in the Privacy Policy that the app is not for children under 13.
+
+## 47.2 Third-Party Data Sharing (GDPR - EU)
+- **Design Rule:** Do not leak visitor IP addresses to third-party domains (fonts, CDNs, analytics) without explicit consent.
+- **Implementation:** 
+  - **Self-Hosting:** All assets (sprite sheets, UI fonts like 'Segoe UI', local scripts) are bundled into the Electron app. 
+  - **CSP Enforcement:** The `index.html` strictly enforces a Content Security Policy (`default-src 'none'; script-src 'self'`) blocking all unauthorized external requests.
+- **Action Required:** Ensure any future crash-reporting or telemetry tools (like Sentry) are opt-in behind a consent toggle.
+
+## 47.3 Recording Users (CIPA - California)
+- **Design Rule:** Session replays and keyloggers are wiretapping risks. 
+- **Implementation:** Clippy collects context (selected text/active window) *only* when the user explicitly triggers an intervention or provides permission. There is zero hidden keystroke logging or session replay (e.g., Hotjar/LogRocket) included in the UI.
+
+## 47.4 Marketing Messages (CAN-SPAM - US)
+- **Design Rule:** If user emails are collected for an API key waitlist or updates, they must be compliant.
+- **Implementation:** Not handled in the desktop client code.
+- **Action Required:** Use a compliant provider (Resend, Loops, etc.) that guarantees an unsubscribe link and postal address on all outgoing marketing emails.
+
+## 47.5 Recurring Charges (ARL - California)
+- **Design Rule:** If Clippy introduces a paid "Bring Your Own Key" (BYOK) sync or premium AI cloud tier, terms must be transparent.
+- **Implementation:** Not currently applicable to the free local client.
+- **Action Required:** Ensure billing pages clearly state "renews until cancelled" next to the pay button and offer a 1-click cancellation online.
+
+## 47.6 User Content (DMCA - US)
+- **Design Rule:** If users can share custom character sprite sheets, prompts, or workflows in a community hub, we need a takedown policy.
+- **Implementation:** The app currently loads sprite sheets locally.
+- **Action Required:** If a marketplace/hub is built (Phase 4), register a designated DMCA agent at copyright.gov ($6), publish a takedown page, and ban repeat infringers.
